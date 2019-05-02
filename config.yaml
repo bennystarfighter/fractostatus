@@ -1,0 +1,7 @@
+client-mode: true
+server-address: http://10.0.0.1:8080
+process-watch:
+- htop
+- gotop
+pollrate: 10
+password: lol
