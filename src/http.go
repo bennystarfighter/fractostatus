@@ -16,9 +16,11 @@ func httpSendToServer(input []byte, se Server) error {
 	if err != nil {
 		return err
 	}
-	if r.StatusCode != 200 {
-		err = errors.New(strconv.Itoa(r.StatusCode) + r.Status)
-		return err
+	if r.StatusCode != http.StatusOK {
+		return errors.New(strconv.Itoa(r.StatusCode) + r.Status)
 	}
 	return nil
+}
+
+func httpHandleIncomingData(w http.ResponseWriter, r *http.Request) {
 }

@@ -2,16 +2,26 @@ package main
 
 import (
 	"log"
-	"os"
+	"net/http"
+	"strconv"
 	"time"
 )
 
 type State struct {
-	clientMode  bool
-	logfile     *os.File
+	clientMode bool
+	serverMode bool
+	// Client
 	processlist []string
 	pollrate    int
 	server      Server
+	identifier  string
+
+	// Server
+	port           int
+	clientPassword string
+	TLSmode        bool
+	certFilePath   string
+	keyFilePath    string
 }
 
 func main() {
@@ -29,9 +39,15 @@ func main() {
 			log.Fatal(err)
 			return
 		}
-	} else {
+	} else if s.serverMode {
 		log.Println("Starting Server!")
-		err = serverRun()
+		err = s.serverRun()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+	} else {
+		err = s.printRun()
 		if err != nil {
 			log.Fatal(err)
 			return
@@ -55,12 +71,20 @@ func (s *State) clientRun() error {
 			log.Println(err)
 			continue
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(time.Duration(s.pollrate) * time.Second)
 	}
 }
 
-func serverRun() error {
-	for {
-
+func (s *State) serverRun() error {
+	http.HandleFunc("/", httpHandleIncomingData)
+	if s.TLSmode {
+		return http.ListenAndServeTLS(":"+strconv.Itoa(s.port), s.certFilePath, s.keyFilePath, nil)
+	} else {
+		return http.ListenAndServe(":"+strconv.Itoa(s.port), nil)
 	}
+}
+
+func (s *State) printRun() error {
+
+	return nil
 }

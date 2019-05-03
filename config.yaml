@@ -1,7 +1,21 @@
+# Client mode configuration
 client-mode: true
-server-address: http://10.0.0.1:8080
+# The identifier is what the main server will know this client as.
+identifier: Main-PC
+server-address: http://10.0.0.1:8888
+server-password: password
+# How often the client will send data to the server
+pollrate: 10
+# For which processes you want to report status of.
 process-watch:
 - htop
 - gotop
-pollrate: 10
-password: lol
+
+# Server mode configuration
+server-mode: false
+port: 8888
+password: password
+# Also known as SSL
+TLS: false
+certfile-path: $HOME/certs/cert
+keyfile-path: $HOME/certs/key
