@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
 	"time"
+
+	ps "github.com/mitchellh/go-ps"
 )
 
 type Server struct {
@@ -14,17 +15,18 @@ type Server struct {
 }
 
 type Content struct {
-	lastalive    time.Time
-	hostname     string
-	processwatch []process
+	lastalive time.Time
+	hostname  string
+	//	processwatch []process
 }
 
+/*
 type process struct {
 	alive bool
 	name  string
 	pid   int
 }
-
+*/
 type Hardware struct {
 	cpuUsage int
 	ramUsage int
@@ -38,16 +40,24 @@ func prepareData(processes []string) error {
 	if err != nil {
 		return err
 	}
-	for i := 0; i < len(processes); i++ {
-		cmd := `ps -e | grep ` + processes[i]
-		_, err := runBashCommand(cmd)
-		if err != nil {
-			return err
-		}
-		fmt.Println(content.hostname, content.lastalive.String(), content.processwatch)
-	}
 
+	output, err := ps.Processes()
+	if err != nil {
+		return err
+	}
+	for i := 0; i < len(output); i++ {
+		output[i].Executable()
+	}
 	return nil
+}
+
+func Contains(a []string, x string) bool {
+	for _, n := range a {
+		if x == n {
+			return true
+		}
+	}
+	return false
 }
 
 func runBashCommand(command string) (string, error) {
