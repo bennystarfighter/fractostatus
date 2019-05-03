@@ -22,8 +22,9 @@ func (s *State) initConfig() error {
 }
 
 func (s *State) getConfigValues() {
-	s.mode = viper.GetBool("client-mode")
-	s.serveraddress = viper.GetString("server-address")
+	s.clientMode = viper.GetBool("client-mode")
+	s.server.address = viper.GetString("server-address")
+	s.server.password = viper.GetString("server-password")
 	s.processlist = viper.GetStringSlice("process-watch")
 	s.pollrate = viper.GetInt("pollrate")
 }
