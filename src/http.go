@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -26,6 +27,8 @@ func httpSendToServer(input []byte, se Server) error {
 }
 
 func (s *State) httpHandleIncomingData(w http.ResponseWriter, r *http.Request) {
+	o, _ := ioutil.ReadAll(r.Body)
+	fmt.Println(o)
 	fmt.Println("1")
 	var clientContent Content
 	gob.Register(Content{})
