@@ -23,22 +23,18 @@ func (s *State) initConfig() error {
 
 func (s *State) getConfigValues() {
 	s.clientMode = viper.GetBool("client-mode")
-	if s.clientMode {
-		s.identifier = viper.GetString("identifier")
-		s.server.address = viper.GetString("server-address")
-		s.server.password = viper.GetString("server-password")
-		s.processlist = viper.GetStringSlice("process-watch")
-		s.pollrate = viper.GetInt("pollrate")
-	}
+	s.identifier = viper.GetString("identifier")
+	s.server.address = viper.GetString("server-address")
+	s.server.password = viper.GetString("server-password")
+	s.processlist = viper.GetStringSlice("process-watch")
+	s.pollrate = viper.GetInt("pollrate")
 	// ********
 	s.serverMode = viper.GetBool("server-mode")
-	if s.serverMode {
-		s.port = viper.GetInt("port")
-		s.clientPassword = viper.GetString("password")
-		s.aliveTimeout = viper.GetInt64("alive-timeout")
-		s.TLSmode = viper.GetBool("TLS")
-		s.certFilePath = viper.GetString("certfile-path")
-		s.keyFilePath = viper.GetString("keyfile-path")
-		s.clientPassword = viper.GetString("password")
-	}
+	s.port = viper.GetInt("port")
+	s.aliveTimeout = viper.GetInt64("alive-timeout")
+	s.clientPassword = viper.GetString("password")
+	s.TLSmode = viper.GetBool("TLS")
+	s.certFilePath = viper.GetString("certfile-path")
+	s.keyFilePath = viper.GetString("keyfile-path")
+	s.clientPassword = viper.GetString("password")
 }

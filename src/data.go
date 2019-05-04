@@ -1,17 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
+	"strings"
 	"time"
-
-	ps "github.com/mitchellh/go-ps"
 )
 
 type Content struct {
 	Identifier         string
 	Lastalive          time.Time
 	Hostname           string
-	ConfirmedProcesses []ps.Process
+	ConfirmedProcesses []string
 	Password           string
 }
 
@@ -30,18 +31,17 @@ func (s *State) prepData(processes []string) (Content, error) {
 		return content, err
 	}
 
-	output, err := ps.Processes()
+	out, err := exec.Command("ps", "-e").Output()
 	if err != nil {
 		return content, err
 	}
-
 	for i := range processes {
-		outputexec := output[i].Executable()
-		isExist := Contains(processes, outputexec)
-		if isExist {
-			content.ConfirmedProcesses = append(content.ConfirmedProcesses, output[i])
+		process_is_running := strings.Contains(string(out), processes[i])
+		if process_is_running {
+			content.ConfirmedProcesses = append(content.ConfirmedProcesses, processes[i])
 		}
 	}
+	fmt.Println(content.ConfirmedProcesses)
 	content.Password = s.server.password
 	return content, nil
 }

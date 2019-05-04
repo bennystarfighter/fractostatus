@@ -46,6 +46,10 @@ func (s *State) serverRun() error {
 }
 
 func (s *State) printRun() error {
+	err := s.initConfig()
+	if err != nil {
+		return err
+	}
 	s.localDB = db.New("db", 10, 0)
 	s.localDB.Load("client-list", &s.clients)
 	var clientsData []Content
@@ -63,12 +67,10 @@ func (s *State) printRun() error {
 		hostname := clientsData[i].Hostname
 		var processNameList []string
 		for d := range clientsData[i].ConfirmedProcesses {
-			processNameList = append(processNameList, clientsData[i].ConfirmedProcesses[d].Executable())
+			processNameList = append(processNameList, clientsData[i].ConfirmedProcesses[d])
 		}
 		aliveProcesses := strings.Join(processNameList, ",")
-		aliveTime := lastalive.Add(time.Duration(s.aliveTimeout) * time.Second)
-		fmt.Println("alivetime: " + aliveTime.String() + " Time now: " + time.Now().String())
-		if aliveTime.After(time.Now()) {
+		if (lastalive.Unix() + s.aliveTimeout) > time.Now().Unix() {
 			color.Set(color.FgGreen)
 		} else {
 			color.Set(color.FgRed)
