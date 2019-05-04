@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/gob"
+	"io"
 	"log"
 	"os/exec"
 )
@@ -24,14 +25,14 @@ func runBashCommand(command string) (string, error) {
 	return string(out), nil
 }
 
-func encodeToGob(in interface{}) ([]byte, error) {
+func encodeToGob(in interface{}) (io.Reader, error) {
 	var b bytes.Buffer
 	var err error
 	enGob := gob.NewEncoder(&b)
 	if err = enGob.Encode(in); err != nil {
 		log.Fatal(err)
 	}
-	return b.Bytes(), err
+	return &b, err
 }
 
 func (s *State) updateClientListDB() error {

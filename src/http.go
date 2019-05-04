@@ -4,7 +4,7 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -15,8 +15,8 @@ type Server struct {
 	password string
 }
 
-func httpSendToServer(input []byte, se Server) error {
-	r, err := http.Post(se.address, "application/x-gob", nil)
+func httpSendToServer(input io.Reader, se Server) error {
+	r, err := http.Post(se.address, "application/x-gob", input)
 	if err != nil {
 		return err
 	}
@@ -27,11 +27,8 @@ func httpSendToServer(input []byte, se Server) error {
 }
 
 func (s *State) httpHandleIncomingData(w http.ResponseWriter, r *http.Request) {
-	o, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(o)
 	fmt.Println("1")
 	var clientContent Content
-	gob.Register(Content{})
 	d := gob.NewDecoder(r.Body)
 	if err := d.Decode(&clientContent); err != nil {
 		log.Println(err)

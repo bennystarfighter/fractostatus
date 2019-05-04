@@ -55,8 +55,8 @@ func (s *State) printRun() error {
 		if err != nil {
 			continue
 		}
+		clientsData = append(clientsData, clientData)
 	}
-
 	for i := range clientsData {
 		lastalive := clientsData[i].Lastalive
 		identifier := clientsData[i].Identifier
@@ -66,14 +66,14 @@ func (s *State) printRun() error {
 			processNameList = append(processNameList, clientsData[i].ConfirmedProcesses[d].Executable())
 		}
 		aliveProcesses := strings.Join(processNameList, ",")
-
-		aliveTime := lastalive.Add(time.Duration(int64(s.aliveTimeout)) * time.Second)
+		aliveTime := lastalive.Add(time.Duration(s.aliveTimeout) * time.Second)
+		fmt.Println("alivetime: " + aliveTime.String() + " Time now: " + time.Now().String())
 		if aliveTime.After(time.Now()) {
 			color.Set(color.FgGreen)
 		} else {
 			color.Set(color.FgRed)
 		}
-		fmt.Println(`ID: ` + identifier + ` | ` + hostname + `Processes: ` + aliveProcesses)
+		fmt.Println(`ID: ` + identifier + ` | ` + hostname + ` Processes: ` + aliveProcesses)
 	}
 	return nil
 }

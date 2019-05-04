@@ -35,7 +35,7 @@ func (s *State) getConfigValues() {
 	if s.serverMode {
 		s.port = viper.GetInt("port")
 		s.clientPassword = viper.GetString("password")
-		s.aliveTimeout = viper.GetInt("alive-timeout")
+		s.aliveTimeout = viper.GetInt64("alive-timeout")
 		s.TLSmode = viper.GetBool("TLS")
 		s.certFilePath = viper.GetString("certfile-path")
 		s.keyFilePath = viper.GetString("keyfile-path")

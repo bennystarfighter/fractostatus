@@ -21,7 +21,7 @@ type State struct {
 	// Server
 	port           int
 	clientPassword string
-	aliveTimeout   int
+	aliveTimeout   int64
 	TLSmode        bool
 	certFilePath   string
 	keyFilePath    string
