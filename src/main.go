@@ -1,10 +1,12 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
-	"net/http"
-	"strconv"
-	"time"
+	"os"
+
+	db "github.com/AlmightyFloppyFish/sfsdb-go"
 )
 
 type State struct {
@@ -19,14 +21,30 @@ type State struct {
 	// Server
 	port           int
 	clientPassword string
+	aliveTimeout   int
 	TLSmode        bool
 	certFilePath   string
 	keyFilePath    string
+	localDB        db.Database
+
+	// Printmode
+	clients []string
 }
 
 func main() {
 	var s State
 	//var err error
+	var print bool
+	flag.BoolVar(&print, "p", false, "")
+	flag.Parse()
+	if print {
+		err := s.printRun()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		os.Exit(0)
+	}
 	err := s.initConfig()
 	if err != nil {
 		log.Fatal("Config ERROR:", err)
@@ -47,44 +65,6 @@ func main() {
 			return
 		}
 	} else {
-		err = s.printRun()
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
+		fmt.Println("nothing!")
 	}
-	prepData(s.processlist)
-}
-
-func (s *State) clientRun() error {
-	for {
-		content, err := prepData(s.processlist)
-		if err != nil {
-			return err
-		}
-		encoded, err := encodeToGob(content)
-		if err != nil {
-			return err
-		}
-		err = httpSendToServer(encoded, s.server)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		time.Sleep(time.Duration(s.pollrate) * time.Second)
-	}
-}
-
-func (s *State) serverRun() error {
-	http.HandleFunc("/", httpHandleIncomingData)
-	if s.TLSmode {
-		return http.ListenAndServeTLS(":"+strconv.Itoa(s.port), s.certFilePath, s.keyFilePath, nil)
-	} else {
-		return http.ListenAndServe(":"+strconv.Itoa(s.port), nil)
-	}
-}
-
-func (s *State) printRun() error {
-
-	return nil
 }

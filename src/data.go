@@ -8,9 +8,11 @@ import (
 )
 
 type Content struct {
+	Identifier         string
 	Lastalive          time.Time
 	Hostname           string
 	ConfirmedProcesses []ps.Process
+	Password           string
 }
 
 type Hardware struct {
@@ -18,22 +20,10 @@ type Hardware struct {
 	ramUsage int
 }
 
-func (s *State) sendData() error {
-	content, err := prepData(s.processlist)
-	if err != nil {
-		return err
-	}
-	encoded, err := encodeToGob(content)
-	if err != nil {
-		return err
-	}
-	httpSendToServer(encoded, s.server)
-	return nil
-}
-
-func prepData(processes []string) (Content, error) {
+func (s *State) prepData(processes []string) (Content, error) {
 	var content Content
 	var err error
+	content.Identifier = s.identifier
 	content.Lastalive = time.Now()
 	content.Hostname, err = os.Hostname()
 	if err != nil {
@@ -52,5 +42,6 @@ func prepData(processes []string) (Content, error) {
 			content.ConfirmedProcesses = append(content.ConfirmedProcesses, output[i])
 		}
 	}
+	content.Password = s.server.password
 	return content, nil
 }

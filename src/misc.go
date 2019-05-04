@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/gob"
+	"log"
 	"os/exec"
 )
 
@@ -25,6 +26,18 @@ func runBashCommand(command string) (string, error) {
 
 func encodeToGob(in interface{}) ([]byte, error) {
 	var b bytes.Buffer
+	var err error
 	enGob := gob.NewEncoder(&b)
-	return b.Bytes(), enGob.Encode(in)
+	if err = enGob.Encode(in); err != nil {
+		log.Fatal(err)
+	}
+	return b.Bytes(), err
+}
+
+func (s *State) updateClientListDB() error {
+	err := s.localDB.Save("client-list", s.clients)
+	if err != nil {
+		return err
+	}
+	return nil
 }

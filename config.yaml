@@ -1,10 +1,12 @@
 # Client mode configuration
 client-mode: true
 # The identifier is what the main server will know this client as.
+# Anything but: client-list
 identifier: Main-PC
 server-address: http://10.0.0.1:8888
 server-password: password
-# How often the client will send data to the server
+# How often the client will send data to the server (in seconds).
+# A good value is between 10-600 and not above the servers alive-timeout.
 pollrate: 10
 # For which processes you want to report status of.
 process-watch:
@@ -15,6 +17,8 @@ process-watch:
 server-mode: false
 port: 8888
 password: password
+# The max amount of seconds since a client updated the server until it will be considered dead.
+alive-timeout: 60
 # Also known as SSL
 TLS: false
 certfile-path: $HOME/certs/cert
