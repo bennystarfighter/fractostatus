@@ -41,6 +41,7 @@ func (s *State) clientRun() error {
 func (s *State) serverRun() error {
 	s.localDB = db.New("db", 10, 0)
 	clientListExist := s.localDB.Exists("client-list")
+	// sfsdb already creates if they don't exist anyway. 
 	if !clientListExist {
 		s.localDB.Save("client-list", []Content{})
 	}
@@ -71,11 +72,11 @@ func (s *State) printerRun() error {
 	}
 	//fmt.Println(clientsData)
 	var p PrintContent
-	for i := range clientsData {
-		p.Lastalive = clientsData[i].Lastalive
-		p.Identifier = clientsData[i].Identifier
-		p.Hostname = clientsData[i].Hostname
-		p.Processes = clientsData[i].Processes
+	for _, cd := range clientsData {
+		p.Lastalive = cd.Lastalive
+		p.Identifier = cd.Identifier
+		p.Hostname = cd.Hostname
+		p.Processes = cd.Processes
 		//fmt.Println(clientsData[i].Processes, p.Processes)
 		if (p.Lastalive.Unix() + s.aliveTimeout) > time.Now().Unix() {
 			p.Alive = true
@@ -103,12 +104,12 @@ func (p *PrintContent) Print() {
 		r.Print(p.Hostname)
 		w.Print(` | `)
 	}
-	for i := range p.Processes {
-		if p.Processes[i].Running {
-			g.Print(p.Processes[i].Name)
+	for _, process := range p.Processes {
+		if process.Running {
+			g.Print(process.Name)
 			w.Print(`,`)
-		} else if !p.Processes[i].Running {
-			r.Print(p.Processes[i].Name)
+		} else {
+			r.Print(process.Name)
 			w.Print(`,`)
 		}
 	}
