@@ -45,7 +45,7 @@ func main() {
 	// If both modes are selected
 	if clientMode && serverMode {
 		fmt.Println("Cannot start fractostatus in both modes. Choose one.")
-		os.Exit(0)
+		return
 		// Printing mode
 	} else if !clientMode && !serverMode {
 		err := s.printerRun()
@@ -54,7 +54,7 @@ func main() {
 			return
 		}
 		// Client mode
-	} else if clientMode && !serverMode {
+	} else if clientMode {
 		log.Println("Starting Client!")
 		err = s.clientRun()
 		if err != nil {
@@ -62,7 +62,7 @@ func main() {
 			return
 		}
 		// Server mode
-	} else if !clientMode && serverMode {
+	} else if serverMode {
 		log.Println("Starting Server!")
 		err = s.serverRun()
 		if err != nil {
@@ -73,5 +73,4 @@ func main() {
 	} else {
 		fmt.Println("Runmode is neither print, client or server.")
 	}
-	os.Exit(0)
 }
