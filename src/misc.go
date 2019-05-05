@@ -19,26 +19,16 @@ func Contains(a []string, s string) bool {
 
 func runBashCommand(command string) (string, error) {
 	out, err := exec.Command("bash", "-c", command).Output()
-	if err != nil {
-		return "", err
-	}
-	return string(out), nil
+	return string(out), err
 }
 
 func encodeToGob(in interface{}) (io.Reader, error) {
 	var b bytes.Buffer
-	var err error
 	enGob := gob.NewEncoder(&b)
-	if err = enGob.Encode(in); err != nil {
-		log.Fatal(err)
-	}
-	return &b, err
+	
+	return &b, enGob.Encode(in)
 }
 
 func (s *State) updateClientListDB() error {
-	err := s.localDB.Save("client-list", s.clients)
-	if err != nil {
-		return err
-	}
-	return nil
+	return s.localDB.Save("client-list", s.clients)
 }
