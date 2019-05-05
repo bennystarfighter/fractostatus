@@ -9,7 +9,7 @@ Centralized system monitor written in GO. Reports that a system is alive and whe
 
 #### Windows
 * **Printer mode**
-* _Client mode_ (partial support, main functionality works but process reporting doesn't.
+* _Client mode_ (partial support, main functionality works but process reporting doesn't.)
 * **Server mode**
 
 ## Usage
