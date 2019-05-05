@@ -1,5 +1,4 @@
 # Client mode configuration
-client-mode: true
 # The identifier is what the main server will know this client as.
 # Anything but: client-list
 identifier: Main-PC
@@ -14,7 +13,6 @@ process-watch:
 - gotop
 
 # Server mode configuration
-server-mode: false
 port: 8888
 password: password
 # The max amount of seconds since a client updated the server until it will be considered dead.

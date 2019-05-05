@@ -10,8 +10,6 @@ import (
 )
 
 type State struct {
-	clientMode bool
-	serverMode bool
 	// Client
 	processlist []string
 	pollrate    int
@@ -33,38 +31,47 @@ type State struct {
 
 func main() {
 	var s State
-	//var err error
-	var print bool
-	flag.BoolVar(&print, "p", false, "")
-	flag.Parse()
-	if print {
-		err := s.printRun()
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		os.Exit(0)
-	}
 	err := s.initConfig()
 	if err != nil {
 		log.Fatal("Config ERROR:", err)
 		return
 	}
-	if s.clientMode {
+	var clientMode bool
+	flag.BoolVar(&clientMode, "client", false, "Start fractostatus in client-mode")
+	var serverMode bool
+	flag.BoolVar(&serverMode, "server", false, "Start fractostatus in server-mode")
+	flag.Parse()
+
+	// If both modes are selected
+	if clientMode && serverMode {
+		fmt.Println("Cannot start fractostatus in both modes. Choose one.")
+		os.Exit(0)
+		// Printing mode
+	} else if !clientMode && !serverMode {
+		err := s.printerRun()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		// Client mode
+	} else if clientMode && !serverMode {
 		log.Println("Starting Client!")
 		err = s.clientRun()
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
-	} else if s.serverMode {
+		// Server mode
+	} else if !clientMode && serverMode {
 		log.Println("Starting Server!")
 		err = s.serverRun()
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
+		// Unknown
 	} else {
-		fmt.Println("nothing!")
+		fmt.Println("Runmode is neither print, client or server.")
 	}
+	os.Exit(0)
 }

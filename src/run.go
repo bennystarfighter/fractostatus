@@ -1,16 +1,24 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	db "github.com/AlmightyFloppyFish/sfsdb-go"
 	"github.com/fatih/color"
 )
+
+type PrintContent struct {
+	Identifier string
+	Hostname   string
+	Alive      bool
+	Lastalive  time.Time
+	Processes  []Process
+}
 
 func (s *State) clientRun() error {
 	for {
@@ -19,10 +27,21 @@ func (s *State) clientRun() error {
 		if err != nil {
 			return err
 		}
+		fmt.Println(content)
 		encoded, err := encodeToGob(content)
 		if err != nil {
 			return err
 		}
+		fmt.Println("*********************")
+		var clientContent Content
+		d := gob.NewDecoder(encoded)
+		if err := d.Decode(&clientContent); err != nil {
+			log.Println(err)
+			return err
+		}
+
+		fmt.Println(clientContent)
+
 		err = httpSendToServer(encoded, s.server)
 		if err != nil {
 			log.Println(err)
@@ -45,7 +64,7 @@ func (s *State) serverRun() error {
 	}
 }
 
-func (s *State) printRun() error {
+func (s *State) printerRun() error {
 	err := s.initConfig()
 	if err != nil {
 		return err
@@ -57,25 +76,44 @@ func (s *State) printRun() error {
 		var clientData Content
 		err := s.localDB.Load(s.clients[i], &clientData)
 		if err != nil {
+			fmt.Println(err)
 			continue
 		}
 		clientsData = append(clientsData, clientData)
 	}
+	//fmt.Println(clientsData)
+	var p PrintContent
 	for i := range clientsData {
-		lastalive := clientsData[i].Lastalive
-		identifier := clientsData[i].Identifier
-		hostname := clientsData[i].Hostname
-		var processNameList []string
-		for d := range clientsData[i].ConfirmedProcesses {
-			processNameList = append(processNameList, clientsData[i].ConfirmedProcesses[d])
-		}
-		aliveProcesses := strings.Join(processNameList, ",")
-		if (lastalive.Unix() + s.aliveTimeout) > time.Now().Unix() {
-			color.Set(color.FgGreen)
+		p.Lastalive = clientsData[i].Lastalive
+		p.Identifier = clientsData[i].Identifier
+		p.Hostname = clientsData[i].Hostname
+		p.Processes = clientsData[i].Processes
+		//fmt.Println(clientsData[i].Processes, p.Processes)
+		if (p.Lastalive.Unix() + s.aliveTimeout) > time.Now().Unix() {
+			p.Alive = true
 		} else {
-			color.Set(color.FgRed)
+			p.Alive = false
 		}
-		fmt.Println(`ID: ` + identifier + ` | ` + hostname + ` Processes: ` + aliveProcesses)
+		p.Print()
+		p = PrintContent{}
 	}
 	return nil
+}
+
+func (p *PrintContent) Print() {
+	g := color.New(color.FgGreen)
+	r := color.New(color.FgRed)
+	if p.Alive {
+		g.Print(p.Identifier + `/` + p.Hostname + ` | `)
+	} else {
+		g.Print(p.Identifier + `/` + p.Hostname + ` | `)
+	}
+	for i := range p.Processes {
+		if p.Processes[i].running {
+			g.Print(p.Processes[i].Name + `,`)
+		} else if !p.Processes[i].running {
+			r.Print(p.Processes[i].Name + `,`)
+		}
+	}
+	fmt.Println()
 }

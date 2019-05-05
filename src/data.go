@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -9,19 +8,19 @@ import (
 )
 
 type Content struct {
-	Identifier         string
-	Lastalive          time.Time
-	Hostname           string
-	ConfirmedProcesses []string
-	Password           string
+	Identifier string
+	Lastalive  time.Time
+	Hostname   string
+	Processes  []Process
+	Password   string
 }
 
-type Hardware struct {
-	cpuUsage int
-	ramUsage int
+type Process struct {
+	Name    string
+	running bool
 }
 
-func (s *State) prepData(processes []string) (Content, error) {
+func (s *State) prepData(processesWatch []string) (Content, error) {
 	var content Content
 	var err error
 	content.Identifier = s.identifier
@@ -35,13 +34,17 @@ func (s *State) prepData(processes []string) (Content, error) {
 	if err != nil {
 		return content, err
 	}
-	for i := range processes {
-		process_is_running := strings.Contains(string(out), processes[i])
+	for i := range processesWatch {
+		var process Process
+		process.Name = processesWatch[i]
+		process_is_running := strings.Contains(string(out), processesWatch[i])
 		if process_is_running {
-			content.ConfirmedProcesses = append(content.ConfirmedProcesses, processes[i])
+			process.running = true
+		} else {
+			process.running = false
 		}
+		content.Processes = append(content.Processes, process)
 	}
-	fmt.Println(content.ConfirmedProcesses)
 	content.Password = s.server.password
 	return content, nil
 }

@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type Server struct {
@@ -20,7 +19,7 @@ func httpSendToServer(input io.Reader, se Server) error {
 		return err
 	}
 	if r.StatusCode != http.StatusOK {
-		return errors.New(strconv.Itoa(r.StatusCode) + r.Status)
+		return errors.New(r.Status)
 	}
 	return nil
 }
@@ -32,7 +31,9 @@ func (s *State) httpHandleIncomingData(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+	//fmt.Println(clientContent)
 	if clientContent.Password != s.clientPassword {
+		w.WriteHeader(401)
 		w.Write([]byte("Access denied, wrong password!"))
 		return
 	}
@@ -41,11 +42,13 @@ func (s *State) httpHandleIncomingData(w http.ResponseWriter, r *http.Request) {
 	}
 	err := s.updateClientListDB()
 	if err != nil {
+		w.WriteHeader(500)
 		w.Write([]byte("Failed to update client-list"))
 		return
 	}
 	err = s.localDB.Save(clientContent.Identifier, clientContent)
 	if err != nil {
+		w.WriteHeader(500)
 		w.Write([]byte("Failed to update client Content"))
 		return
 	}
