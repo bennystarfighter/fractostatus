@@ -13,6 +13,8 @@ Centralized system monitor written in GO. Reports that a system is alive and whe
 * **Server mode**
 
 ## Usage
+Either build it from source or download a prebuilt [release.](https://github.com/bennystarfighter/fractostatus/releases)
+
 #### Printer mode
 ```bash
 ./fractostatus
