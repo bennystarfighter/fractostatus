@@ -17,7 +17,7 @@ type Content struct {
 
 type Process struct {
 	Name    string
-	running bool
+	Running bool
 }
 
 func (s *State) prepData(processesWatch []string) (Content, error) {
@@ -39,9 +39,9 @@ func (s *State) prepData(processesWatch []string) (Content, error) {
 		process.Name = processesWatch[i]
 		process_is_running := strings.Contains(string(out), processesWatch[i])
 		if process_is_running {
-			process.running = true
+			process.Running = true
 		} else {
-			process.running = false
+			process.Running = false
 		}
 		content.Processes = append(content.Processes, process)
 	}

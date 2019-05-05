@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
@@ -27,21 +26,10 @@ func (s *State) clientRun() error {
 		if err != nil {
 			return err
 		}
-		fmt.Println(content)
 		encoded, err := encodeToGob(content)
 		if err != nil {
 			return err
 		}
-		fmt.Println("*********************")
-		var clientContent Content
-		d := gob.NewDecoder(encoded)
-		if err := d.Decode(&clientContent); err != nil {
-			log.Println(err)
-			return err
-		}
-
-		fmt.Println(clientContent)
-
 		err = httpSendToServer(encoded, s.server)
 		if err != nil {
 			log.Println(err)
@@ -101,18 +89,27 @@ func (s *State) printerRun() error {
 }
 
 func (p *PrintContent) Print() {
-	g := color.New(color.FgGreen)
+	w := color.New(color.FgWhite)
+	g := color.New(color.FgHiGreen)
 	r := color.New(color.FgRed)
 	if p.Alive {
-		g.Print(p.Identifier + `/` + p.Hostname + ` | `)
+		g.Print(p.Identifier)
+		w.Print(`/`)
+		g.Print(p.Hostname)
+		w.Print(` | `)
 	} else {
-		g.Print(p.Identifier + `/` + p.Hostname + ` | `)
+		r.Print(p.Identifier)
+		w.Print(`/`)
+		r.Print(p.Hostname)
+		w.Print(` | `)
 	}
 	for i := range p.Processes {
-		if p.Processes[i].running {
-			g.Print(p.Processes[i].Name + `,`)
-		} else if !p.Processes[i].running {
-			r.Print(p.Processes[i].Name + `,`)
+		if p.Processes[i].Running {
+			g.Print(p.Processes[i].Name)
+			w.Print(`,`)
+		} else if !p.Processes[i].Running {
+			r.Print(p.Processes[i].Name)
+			w.Print(`,`)
 		}
 	}
 	fmt.Println()
