@@ -1,4 +1,4 @@
-# fractostatus
+# Fractostatus
 Centralized system monitor written in GO. Reports that a system is alive and whether the selected processes is running to the main server. The server is also the location where you will be checking the report.
 
 ## Compatibility
